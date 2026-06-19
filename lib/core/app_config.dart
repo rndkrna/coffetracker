@@ -10,6 +10,8 @@ class AppConfig {
   static const _geminiApiKeyDefine = String.fromEnvironment('GEMINI_API_KEY');
   static const _maptilerApiKeyDefine =
       String.fromEnvironment('MAPTILER_API_KEY');
+  static const _googleMapsApiKeyDefine =
+      String.fromEnvironment('GOOGLE_MAPS_API_KEY');
 
   static String get supabaseUrl => _read('SUPABASE_URL', _supabaseUrlDefine);
   static String get supabaseAnonKey =>
@@ -18,6 +20,8 @@ class AppConfig {
       _read('GEMINI_API_KEY', _geminiApiKeyDefine);
   static String get maptilerApiKey =>
       _read('MAPTILER_API_KEY', _maptilerApiKeyDefine);
+  static String get googleMapsApiKey =>
+      _read('GOOGLE_MAPS_API_KEY', _googleMapsApiKeyDefine);
 
   static bool get hasSupabaseConfig =>
       supabaseUrl.isNotEmpty && supabaseAnonKey.isNotEmpty;

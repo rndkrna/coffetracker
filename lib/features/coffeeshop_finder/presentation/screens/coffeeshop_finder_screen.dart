@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../../app/constants/app_colors.dart';
 import '../../../../app/constants/app_routes.dart';
+import '../../../../core/app_config.dart';
 import '../../../../core/widgets/widgets.dart';
 import '../../../location/providers/location_provider.dart';
 import '../../../../features/recommendation/providers/recommendation_provider.dart';
@@ -339,28 +341,92 @@ class _CoffeeshopFinderScreenState
   }
 
   Widget _buildMapView() {
-    // Placeholder for Google Maps
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.map_rounded,
-              size: 64, color: AppColors.textSecondary.withAlpha(80)),
-          const SizedBox(height: 16),
-          Text(
-            'Map View',
-            style: GoogleFonts.poppins(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textSecondary),
+    if (AppConfig.googleMapsApiKey.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.map_rounded,
+                  size: 64, color: AppColors.textSecondary.withAlpha(80)),
+              const SizedBox(height: 16),
+              Text(
+                'Google Maps API key belum diatur',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Build ulang aplikasi dengan --dart-define="GOOGLE_MAPS_API_KEY=..." untuk menampilkan peta.',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.poppins(
+                    fontSize: 12, color: AppColors.textSecondary),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-          Text(
-            'Google Maps Integration (Tahap 8)',
-            style: GoogleFonts.poppins(
-                fontSize: 12, color: AppColors.textSecondary),
+        ),
+      );
+    }
+
+    final recommendationState = ref.watch(recommendationProvider);
+    final locationState = ref.watch(locationProvider);
+    final shops = recommendationState.allShops
+        .where((shop) => shop.latitude != null && shop.longitude != null)
+        .toList();
+
+    final userLat = locationState.location.latitude != 0.0
+        ? locationState.location.latitude
+        : null;
+    final userLng = locationState.location.longitude != 0.0
+        ? locationState.location.longitude
+        : null;
+
+    final initialTarget = userLat != null && userLng != null
+        ? LatLng(userLat, userLng)
+        : shops.isNotEmpty
+            ? LatLng(shops.first.latitude!, shops.first.longitude!)
+            : const LatLng(-2.5489, 118.0149); // Indonesia
+
+    final markers = <Marker>{
+      if (userLat != null && userLng != null)
+        Marker(
+          markerId: const MarkerId('current_location'),
+          position: LatLng(userLat, userLng),
+          infoWindow: const InfoWindow(title: 'Lokasi kamu'),
+          icon:
+              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+        ),
+      ...shops.map(
+        (shop) => Marker(
+          markerId: MarkerId(shop.id),
+          position: LatLng(shop.latitude!, shop.longitude!),
+          infoWindow: InfoWindow(
+            title: shop.name,
+            snippet: shop.address,
+            onTap: () =>
+                context.push('${AppRoutes.coffeeshopDetail}/${shop.id}'),
           ),
-        ],
+        ),
+      ),
+    };
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: GoogleMap(
+        initialCameraPosition: CameraPosition(
+          target: initialTarget,
+          zoom: userLat != null && userLng != null ? 14 : 11,
+        ),
+        markers: markers,
+        myLocationEnabled: userLat != null && userLng != null,
+        myLocationButtonEnabled: true,
+        zoomControlsEnabled: false,
+        mapToolbarEnabled: true,
       ),
     );
   }
