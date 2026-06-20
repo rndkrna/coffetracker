@@ -86,13 +86,14 @@ class FoursquarePlacesService {
     required String location,
     int limit = 15,
   }) {
-    return Uri.https('api.foursquare.com', '/v3/places/search', {
+    return Uri.https('places-api.foursquare.com', '/places/search', {
       'query': 'coffee cafe kedai kopi',
       'near': location,
-      'categories': '13032,13034',
+      'fsq_category_ids': '13032,13034',
       'limit': limit.toString(),
       'sort': 'RELEVANCE',
-      'fields': 'fsq_id,name,location,geocodes,categories,distance',
+      'fields':
+          'fsq_place_id,name,location,latitude,longitude,categories,distance',
     });
   }
 
@@ -102,14 +103,15 @@ class FoursquarePlacesService {
     int radius = 5000,
     int limit = 15,
   }) {
-    return Uri.https('api.foursquare.com', '/v3/places/search', {
+    return Uri.https('places-api.foursquare.com', '/places/search', {
       'query': 'coffee cafe kedai kopi',
       'll': '$latitude,$longitude',
       'radius': radius.toString(),
-      'categories': '13032,13034',
+      'fsq_category_ids': '13032,13034',
       'limit': limit.toString(),
       'sort': 'DISTANCE',
-      'fields': 'fsq_id,name,location,geocodes,categories,distance',
+      'fields':
+          'fsq_place_id,name,location,latitude,longitude,categories,distance',
     });
   }
 
@@ -165,8 +167,9 @@ class FoursquarePlacesService {
       final response = await http.get(
         url,
         headers: {
-          'Authorization': _apiKey!,
+          'Authorization': 'Bearer $_apiKey',
           'Accept': 'application/json',
+          'X-Places-Api-Version': '2025-06-17',
         },
       );
 
@@ -207,23 +210,19 @@ class FoursquarePlacesService {
         _readString(place, ['location', 'locality']) ??
         '';
 
-    final geocodes = place['geocodes'] as Map<String, dynamic>?;
-    final main = geocodes?['main'] as Map<String, dynamic>?;
-    final roof = geocodes?['roof'] as Map<String, dynamic>?;
-    final coordinates = main ?? roof;
+    final latitude = place['latitude'];
+    final longitude = place['longitude'];
 
-    if (coordinates == null ||
-        coordinates['latitude'] == null ||
-        coordinates['longitude'] == null) {
+    if (latitude == null || longitude == null) {
       throw Exception('Missing Foursquare coordinates');
     }
 
     return PlaceCoffeeShop(
       name: name,
       address: address,
-      latitude: (coordinates['latitude'] as num).toDouble(),
-      longitude: (coordinates['longitude'] as num).toDouble(),
-      placeId: _readString(place, ['fsq_id']),
+      latitude: (latitude as num).toDouble(),
+      longitude: (longitude as num).toDouble(),
+      placeId: _readString(place, ['fsq_place_id']),
     );
   }
 }

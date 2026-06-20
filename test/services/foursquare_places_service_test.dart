@@ -10,11 +10,11 @@ void main() {
       );
 
       expect(uri.scheme, 'https');
-      expect(uri.host, 'api.foursquare.com');
-      expect(uri.path, '/v3/places/search');
+      expect(uri.host, 'places-api.foursquare.com');
+      expect(uri.path, '/places/search');
       expect(uri.queryParameters['ll'], '-6.2,106.8');
       expect(uri.queryParameters['radius'], '5000');
-      expect(uri.queryParameters['categories'], '13032,13034');
+      expect(uri.queryParameters['fsq_category_ids'], '13032,13034');
       expect(uri.queryParameters['sort'], 'DISTANCE');
     });
 
@@ -24,10 +24,10 @@ void main() {
       );
 
       expect(uri.scheme, 'https');
-      expect(uri.host, 'api.foursquare.com');
-      expect(uri.path, '/v3/places/search');
+      expect(uri.host, 'places-api.foursquare.com');
+      expect(uri.path, '/places/search');
       expect(uri.queryParameters['near'], 'Jakarta');
-      expect(uri.queryParameters['categories'], '13032,13034');
+      expect(uri.queryParameters['fsq_category_ids'], '13032,13034');
       expect(uri.queryParameters['sort'], 'RELEVANCE');
     });
   });
