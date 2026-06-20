@@ -12,6 +12,8 @@ class AppConfig {
       String.fromEnvironment('MAPTILER_API_KEY');
   static const _googleMapsApiKeyDefine =
       String.fromEnvironment('GOOGLE_MAPS_API_KEY');
+  static const _foursquareApiKeyDefine =
+      String.fromEnvironment('FOURSQUARE_API_KEY');
 
   static String get supabaseUrl => _read('SUPABASE_URL', _supabaseUrlDefine);
   static String get supabaseAnonKey =>
@@ -22,6 +24,8 @@ class AppConfig {
       _read('MAPTILER_API_KEY', _maptilerApiKeyDefine);
   static String get googleMapsApiKey =>
       _read('GOOGLE_MAPS_API_KEY', _googleMapsApiKeyDefine);
+  static String get foursquareApiKey =>
+      _read('FOURSQUARE_API_KEY', _foursquareApiKeyDefine);
 
   static bool get hasSupabaseConfig =>
       supabaseUrl.isNotEmpty && supabaseAnonKey.isNotEmpty;

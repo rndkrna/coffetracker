@@ -290,7 +290,7 @@ class _CoffeeshopFinderScreenState
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Masukkan nama kota atau area. Aplikasi akan mencari kedai nyata dari MapTiler, lalu AI hanya melengkapi menu dan vibes.',
+              'Masukkan nama kota atau area. Aplikasi akan mencari kedai nyata dari Foursquare Places, lalu AI hanya melengkapi menu dan vibes.',
               style: GoogleFonts.poppins(fontSize: 12),
             ),
             const SizedBox(height: 12),

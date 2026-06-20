@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../../models/coffee_shop.dart';
+import '../../../services/foursquare_places_service.dart';
 import '../../../services/gemini_data_service.dart';
-import '../../../services/maptiler_service.dart';
 import '../../../helpers/database_helper.dart';
 
 void _log(String message) {
@@ -258,29 +258,29 @@ class RecommendationNotifier extends StateNotifier<RecommendationState> {
 
   Future<void> trainDataWithGemini(String location) async {
     // Keep this method for backward compatibility, but prefer real places from
-    // MapTiler and use Gemini only to enrich menu/vibes.
+    // Foursquare and use Gemini only to enrich menu/vibes.
     await trainDataWithHybrid(location);
   }
 
-  /// Hybrid method: Use MapTiler for real locations + Gemini for vibes/menu
+  /// Hybrid method: Use Foursquare for real locations + Gemini for vibes/menu
   Future<void> trainDataWithHybrid(String location) async {
     state = state.copyWith(isLoading: true);
     try {
       _log('🚀 Starting hybrid search for: $location');
 
-      // 1. Fetch real coffee shops from MapTiler
-      final maptilerShops =
-          await MaptilerService.instance.searchCoffeeShops(location);
-      _log('✅ MapTiler returned ${maptilerShops.length} real coffee shops');
+      // 1. Fetch real coffee shops from Foursquare Places API
+      final foursquareShops =
+          await FoursquarePlacesService.instance.searchCoffeeShops(location);
+      _log('✅ Foursquare returned ${foursquareShops.length} real coffee shops');
 
-      if (maptilerShops.isEmpty) {
+      if (foursquareShops.isEmpty) {
         throw Exception(
             'Tidak ada kedai kopi nyata yang ditemukan untuk lokasi ini. Coba area yang lebih spesifik.');
       }
 
       // 2. Enrich with vibes and menu using Gemini
       final enrichedShops = _mergeUniqueShops(
-        await GeminiDataService.instance.enrichMaptilerData(maptilerShops),
+        await GeminiDataService.instance.enrichMaptilerData(foursquareShops),
       );
       _log('✅ Gemini enriched ${enrichedShops.length} unique coffee shops');
 
