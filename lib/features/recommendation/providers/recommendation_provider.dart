@@ -280,7 +280,7 @@ class RecommendationNotifier extends StateNotifier<RecommendationState> {
 
       // 2. Enrich with vibes and menu using Gemini
       final enrichedShops = _mergeUniqueShops(
-        await GeminiDataService.instance.enrichMaptilerData(foursquareShops),
+        await GeminiDataService.instance.enrichPlaceData(foursquareShops),
       );
       _log('✅ Gemini enriched ${enrichedShops.length} unique coffee shops');
 

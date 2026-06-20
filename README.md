@@ -1,6 +1,6 @@
 # Coffee Budget Tracker
 
-Aplikasi Flutter untuk mencatat, menganalisis, dan mengelola budget pengeluaran kopi harian. App mendukung auth Supabase, penyimpanan lokal SQLite, katalog coffee shop, rekomendasi menu, OCR struk, lokasi, dan integrasi AI/MapTiler.
+Aplikasi Flutter untuk mencatat, menganalisis, dan mengelola budget pengeluaran kopi harian. App mendukung auth Supabase, penyimpanan lokal SQLite, katalog coffee shop, rekomendasi menu, OCR struk, lokasi, integrasi AI, Foursquare Places, dan Google Maps.
 
 ## Prasyarat
 
@@ -8,7 +8,8 @@ Aplikasi Flutter untuk mencatat, menganalisis, dan mengelola budget pengeluaran 
 - Project Supabase dengan schema dari `supabase_schema.sql`
 - API key opsional:
   - Gemini untuk fitur AI
-  - MapTiler untuk pencarian coffee shop berbasis peta
+  - Foursquare Places untuk pencarian coffee shop nyata
+  - Google Maps untuk tampilan peta dan marker
 
 ## Konfigurasi Environment
 
@@ -21,7 +22,8 @@ flutter run \
   --dart-define=SUPABASE_URL=https://your-project.supabase.co \
   --dart-define=SUPABASE_ANON_KEY=your-supabase-anon-key \
   --dart-define=GEMINI_API_KEY=your-gemini-api-key \
-  --dart-define=MAPTILER_API_KEY=your-maptiler-api-key
+  --dart-define=FOURSQUARE_API_KEY=your-foursquare-api-key \
+  --dart-define=GOOGLE_MAPS_API_KEY=your-google-maps-api-key
 ```
 
 Saat debug lokal, file `.env` masih bisa digunakan sebagai fallback jika tersedia, tetapi `.env` tidak didaftarkan sebagai Flutter asset sehingga tidak ikut dipaketkan ke app.
@@ -32,7 +34,8 @@ Contoh `.env` lokal:
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_ANON_KEY=your-supabase-anon-key
 GEMINI_API_KEY=your-gemini-api-key
-MAPTILER_API_KEY=your-maptiler-api-key
+FOURSQUARE_API_KEY=your-foursquare-api-key
+GOOGLE_MAPS_API_KEY=your-google-maps-api-key
 ```
 
 > Jangan commit `.env` atau API key asli. Batasi API key di provider masing-masing jika tersedia.
@@ -60,10 +63,10 @@ flutter test
 flutter analyze
 ```
 
-Test service MapTiler:
+Test service Foursquare:
 
 ```sh
-flutter test test/services/maptiler_service_test.dart
+flutter test test/services/foursquare_places_service_test.dart
 ```
 
 ## Catatan Keamanan

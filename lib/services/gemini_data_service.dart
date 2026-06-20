@@ -3,8 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import '../core/app_config.dart';
 import '../models/coffee_shop.dart';
+import '../models/place_coffee_shop.dart';
 import 'package:uuid/uuid.dart';
-import 'maptiler_service.dart';
 
 void _log(String message) {
   if (kDebugMode) debugPrint(message);
@@ -168,11 +168,11 @@ Tolong HANYA output JSON array yang valid.
     }
   }
 
-  /// Hybrid method: Enrich MapTiler data with vibes and menu using Gemini
-  Future<List<CoffeeShop>> enrichMaptilerData(
-      List<MaptilerCoffeeShop> maptilerShops) async {
+  /// Hybrid method: Enrich real place data with vibes and menu using Gemini.
+  Future<List<CoffeeShop>> enrichPlaceData(
+      List<PlaceCoffeeShop> placeShops) async {
     _log(
-        '🤖 Starting Gemini enrichment for ${maptilerShops.length} MapTiler shops');
+        '🤖 Starting Gemini enrichment for ${placeShops.length} real coffee shops');
 
     // Coba re-initialize kalau sebelumnya gagal
     if (_model == null) {
@@ -188,10 +188,10 @@ Tolong HANYA output JSON array yang valid.
 
     // Build the input data for Gemini
     final shopDataJson =
-        jsonEncode(maptilerShops.map((shop) => shop.toJson()).toList());
+        jsonEncode(placeShops.map((shop) => shop.toJson()).toList());
 
     final prompt = '''
-Anda adalah asisten data. Berikut adalah daftar kedai kopi NYATA dari peta (MapTiler) dengan nama, alamat, dan koordinat GPS yang akurat:
+Anda adalah asisten data. Berikut adalah daftar kedai kopi NYATA dari provider places dengan nama, alamat, dan koordinat GPS yang akurat:
 $shopDataJson
 
 Tugas Anda HANYA melengkapi data ini dengan:
@@ -258,12 +258,12 @@ Tolong HANYA output JSON array yang valid dengan jumlah item SAMA dengan input d
       final uuid = const Uuid();
 
       final shops = <CoffeeShop>[];
-      final itemCount = jsonList.length < maptilerShops.length
+      final itemCount = jsonList.length < placeShops.length
           ? jsonList.length
-          : maptilerShops.length;
+          : placeShops.length;
       for (var index = 0; index < itemCount; index++) {
         final shopJson = jsonList[index];
-        final sourceShop = maptilerShops[index];
+        final sourceShop = placeShops[index];
         final shopId = uuid.v4();
 
         final menuItems = <MenuItem>[];

@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import '../core/app_config.dart';
-import 'maptiler_service.dart';
+import '../models/place_coffee_shop.dart';
 
 void _log(String message) {
   if (kDebugMode) debugPrint(message);
@@ -40,7 +40,7 @@ bool _isKnownShopName(String name) {
       normalized != 'coffee';
 }
 
-String _dedupKey(MaptilerCoffeeShop shop) {
+String _dedupKey(PlaceCoffeeShop shop) {
   final name = _normalizePlaceText(shop.name);
   final address = _normalizePlaceText(shop.address);
   final latBucket = (shop.latitude * 1000).round();
@@ -48,9 +48,9 @@ String _dedupKey(MaptilerCoffeeShop shop) {
   return '$name|$address|$latBucket|$lngBucket';
 }
 
-List<MaptilerCoffeeShop> _deduplicateShops(List<MaptilerCoffeeShop> shops) {
+List<PlaceCoffeeShop> _deduplicateShops(List<PlaceCoffeeShop> shops) {
   final seen = <String>{};
-  final result = <MaptilerCoffeeShop>[];
+  final result = <PlaceCoffeeShop>[];
 
   for (final shop in shops) {
     if (!_isKnownShopName(shop.name)) {
@@ -113,7 +113,7 @@ class FoursquarePlacesService {
     });
   }
 
-  Future<List<MaptilerCoffeeShop>> searchCoffeeShops(String location) async {
+  Future<List<PlaceCoffeeShop>> searchCoffeeShops(String location) async {
     _log('📍 Starting Foursquare search for location: $location');
 
     if (_apiKey == null || _apiKey!.isEmpty) {
@@ -132,7 +132,7 @@ class FoursquarePlacesService {
     return _search(url, 'Foursquare text search');
   }
 
-  Future<List<MaptilerCoffeeShop>> searchCoffeeShopsByCoordinates(
+  Future<List<PlaceCoffeeShop>> searchCoffeeShopsByCoordinates(
     double latitude,
     double longitude, [
     int radius = 5000,
@@ -159,7 +159,7 @@ class FoursquarePlacesService {
     return _search(url, 'Foursquare nearby search');
   }
 
-  Future<List<MaptilerCoffeeShop>> _search(Uri url, String label) async {
+  Future<List<PlaceCoffeeShop>> _search(Uri url, String label) async {
     try {
       _log('📤 Sending request to $label');
       final response = await http.get(
@@ -179,7 +179,7 @@ class FoursquarePlacesService {
       final results = data['results'] as List<dynamic>? ?? [];
       _log('✅ Found ${results.length} places from Foursquare');
 
-      final shops = <MaptilerCoffeeShop>[];
+      final shops = <PlaceCoffeeShop>[];
       for (final result in results) {
         try {
           if (result is! Map<String, dynamic>) continue;
@@ -200,7 +200,7 @@ class FoursquarePlacesService {
     }
   }
 
-  MaptilerCoffeeShop _fromFoursquarePlace(Map<String, dynamic> place) {
+  PlaceCoffeeShop _fromFoursquarePlace(Map<String, dynamic> place) {
     final name = _readString(place, ['name']) ?? '';
     final address = _readString(place, ['location', 'formatted_address']) ??
         _readString(place, ['location', 'address']) ??
@@ -218,7 +218,7 @@ class FoursquarePlacesService {
       throw Exception('Missing Foursquare coordinates');
     }
 
-    return MaptilerCoffeeShop(
+    return PlaceCoffeeShop(
       name: name,
       address: address,
       latitude: (coordinates['latitude'] as num).toDouble(),
